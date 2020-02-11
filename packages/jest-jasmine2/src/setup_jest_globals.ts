@@ -8,11 +8,6 @@
 import {Config, Global} from '@jest/types';
 import {Plugin} from 'pretty-format';
 import {extractExpectedAssertionsErrors, getState, setState} from 'expect';
-import {
-  SnapshotState,
-  addSerializer,
-  buildSnapshotResolver,
-} from 'jest-snapshot';
 import JasmineSpec, {Attributes, SpecResult} from './jasmine/Spec';
 import {Jasmine} from './types';
 
@@ -85,32 +80,8 @@ const patchJasmine = () => {
 };
 
 export default ({
-  config,
-  globalConfig,
-  localRequire,
   testPath,
 }: SetupOptions) => {
-  // Jest tests snapshotSerializers in order preceding built-in serializers.
-  // Therefore, add in reverse because the last added is the first tested.
-  config.snapshotSerializers
-    .concat()
-    .reverse()
-    .forEach(path => {
-      addSerializer(localRequire(path));
-    });
-
   patchJasmine();
-  const {expand, updateSnapshot} = globalConfig;
-  const snapshotResolver = buildSnapshotResolver(config);
-  const snapshotPath = snapshotResolver.resolveSnapshotPath(testPath);
-  const snapshotState = new SnapshotState(snapshotPath, {
-    expand,
-    getBabelTraverse: () => require('@babel/traverse').default,
-    getPrettier: () =>
-      config.prettierPath ? require(config.prettierPath) : null,
-    updateSnapshot,
-  });
-  setState({snapshotState, testPath});
-  // Return it back to the outer scope (test runner outside the VM).
-  return snapshotState;
+  setState({testPath});
 };

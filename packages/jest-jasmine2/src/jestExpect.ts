@@ -7,13 +7,6 @@
 
 import expect = require('expect');
 import {Global} from '@jest/types';
-import {
-  addSerializer,
-  toMatchInlineSnapshot,
-  toMatchSnapshot,
-  toThrowErrorMatchingInlineSnapshot,
-  toThrowErrorMatchingSnapshot,
-} from 'jest-snapshot';
 import {Jasmine, RawMatcherFn} from './types';
 
 declare const global: Global.Global;
@@ -29,13 +22,6 @@ type JasmineMatchersObject = {[id: string]: JasmineMatcher};
 export default (config: {expand: boolean}) => {
   global.expect = expect;
   expect.setState({expand: config.expand});
-  expect.extend({
-    toMatchInlineSnapshot,
-    toMatchSnapshot,
-    toThrowErrorMatchingInlineSnapshot,
-    toThrowErrorMatchingSnapshot,
-  });
-  expect.addSnapshotSerializer = addSerializer;
 
   const jasmine = global.jasmine as Jasmine;
   jasmine.anything = expect.anything;

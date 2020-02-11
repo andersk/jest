@@ -7,9 +7,8 @@
 
 import * as path from 'path';
 import {Config, Global} from '@jest/types';
-import {AssertionResult, TestResult} from '@jest/test-result';
+import {TestResult} from '@jest/test-result';
 import {JestEnvironment} from '@jest/environment';
-import {SnapshotStateType} from 'jest-snapshot';
 import Runtime = require('jest-runtime');
 
 import {getCallsite} from '@jest/source-map';
@@ -140,7 +139,7 @@ async function jasmine2(
     });
   }
 
-  const snapshotState: SnapshotStateType = runtime
+  runtime
     .requireInternalModule(path.resolve(__dirname, './setup_jest_globals.js'))
     .default({
       config,
@@ -170,40 +169,8 @@ async function jasmine2(
 
   const results = await reporter.getResults();
 
-  return addSnapshotData(results, snapshotState);
-}
-
-const addSnapshotData = (
-  results: TestResult,
-  snapshotState: SnapshotStateType,
-) => {
-  results.testResults.forEach(({fullName, status}: AssertionResult) => {
-    if (status === 'pending' || status === 'failed') {
-      // if test is skipped or failed, we don't want to mark
-      // its snapshots as obsolete.
-      snapshotState.markSnapshotsAsCheckedForTest(fullName);
-    }
-  });
-
-  const uncheckedCount = snapshotState.getUncheckedCount();
-  const uncheckedKeys = snapshotState.getUncheckedKeys();
-
-  if (uncheckedCount) {
-    snapshotState.removeUncheckedKeys();
-  }
-
-  const status = snapshotState.save();
-  results.snapshot.fileDeleted = status.deleted;
-  results.snapshot.added = snapshotState.added;
-  results.snapshot.matched = snapshotState.matched;
-  results.snapshot.unmatched = snapshotState.unmatched;
-  results.snapshot.updated = snapshotState.updated;
-  results.snapshot.unchecked = !status.deleted ? uncheckedCount : 0;
-  // Copy the array to prevent memory leaks
-  results.snapshot.uncheckedKeys = Array.from(uncheckedKeys);
-
   return results;
-};
+}
 
 // eslint-disable-next-line no-redeclare
 namespace jasmine2 {

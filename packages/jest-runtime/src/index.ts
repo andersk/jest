@@ -23,7 +23,6 @@ import {formatStackTrace, separateMessageFromStack} from 'jest-message-util';
 import Resolver = require('jest-resolve');
 import {createDirectory, deepCyclicCopy} from 'jest-util';
 import {escapePathForRegex} from 'jest-regex-util';
-import Snapshot = require('jest-snapshot');
 import {
   ScriptTransformer,
   ShouldInstrumentOptions,
@@ -244,7 +243,7 @@ class Runtime {
       computeSha1: config.haste.computeSha1,
       console: options && options.console,
       dependencyExtractor: config.dependencyExtractor,
-      extensions: [Snapshot.EXTENSION].concat(config.moduleFileExtensions),
+      extensions: config.moduleFileExtensions,
       hasteImplModulePath: config.haste.hasteImplModulePath,
       ignorePattern,
       maxWorkers: (options && options.maxWorkers) || 1,
